@@ -1,7 +1,10 @@
+import { graphqlExpress, graphiqlExpress } from 'graphql-server-express'
+import bodyParser from 'body-parser';
 import express from 'express';
-import webpackDevMiddleware from 'webpack-dev-middleware';
+import schema from './graphql/schema.js';
 import webpack from 'webpack';
 import webpackConfig from './webpack.config.js';
+import webpackDevMiddleware from 'webpack-dev-middleware';
 
 const app = express();
 
@@ -18,6 +21,18 @@ app.use(webpackDevMiddleware(compiler, {
 }));
 
 app.use(express.static(__dirname + '/www'));
+
+app.use(bodyParser.json())
+
+app.use('/graphql', graphqlExpress(req => ({
+  schema,
+  context: {},
+})))
+
+app.use('/graphiql', graphiqlExpress({
+  endpointURL: '/graphql',
+  subscriptionsEndpoint: 'ws://localhost:3000/subs',
+}))
 
 const server = app.listen(3000, function() {
   const host = server.address().address;
