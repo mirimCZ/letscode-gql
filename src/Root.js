@@ -21,7 +21,6 @@ const Root = () => (
         <div id="head">
           <ul>
             <li><Link to="/">List</Link></li>
-            <li><Link to="/article/1">Article</Link></li>
           </ul>
         </div>
         <div id="content">

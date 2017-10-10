@@ -4,6 +4,7 @@ import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 const typeDefs = `
   type Article {
     id: ID!
+    title: String!
     content: String!
     published: Boolean
 
