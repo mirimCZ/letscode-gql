@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "content": "Lorem ipsum dolor",
+    "published": true,
+    "author": 1
+  },
+  {
+    "id": 2,
+    "content": "Sit amet",
+    "published": true,
+    "author": 2
+  },
+  {
+    "id": 3,
+    "content": "Consectetur adipiscing elit",
+    "published": false,
+    "author": 2
+  }
+]

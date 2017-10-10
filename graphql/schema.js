@@ -1,5 +1,6 @@
-import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import { graphql } from 'graphql';
+import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
+import fs from 'fs';
 
 const typeDefs = `
   type Article {
@@ -19,7 +20,6 @@ const typeDefs = `
 
   type Rating {
     id: ID!
-    article: ID!
     value: Int!
   }
 
@@ -28,10 +28,43 @@ const typeDefs = `
   }
 `
 
-const schema = makeExecutableSchema({
-  typeDefs
-});
+const resolvers = {
+  Query: {
+    articles: (root, params, context) => {
+      /*
+      ** Can be done synchronously with readFileSync or even using articles.js instead of json
+      ** Only an example for async resolver
+      */
+      return new Promise((resolve, reject) => {
+        fs.readFile('./graphql/data/articles.json', (err, data) => {
+          if (err) {
+            reject(err)
+          }
 
-addMockFunctionsToSchema({ schema });
+          resolve(JSON.parse(data))
+        })
+      })
+    }
+  },
+  Article: {
+    author: (article, params, context) => {
+      const authorsJson = fs.readFileSync('./graphql/data/authors.json')
+      const authors = JSON.parse(authorsJson)
+
+      return authors.find(author => author.id === article.author)
+    },
+    ratings: (article, params, context) => {
+      const ratingsJson = fs.readFileSync('./graphql/data/ratings.json');
+      const ratings = JSON.parse(ratingsJson)
+
+      return ratings.filter(rating => rating.article === article.id)
+    }
+  }
+}
+
+const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+});
 
 export default schema
