@@ -1,6 +1,5 @@
 import { graphql } from 'graphql';
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
-import fs from 'fs';
 
 const typeDefs = `
   type Article {
@@ -31,33 +30,19 @@ const typeDefs = `
 const resolvers = {
   Query: {
     articles: (root, params, context) => {
-      /*
-      ** Can be done synchronously with readFileSync or even using articles.js instead of json
-      ** Only an example for async resolver
-      */
-      return new Promise((resolve, reject) => {
-        fs.readFile('./graphql/data/articles.json', (err, data) => {
-          if (err) {
-            reject(err)
-          }
-
-          resolve(JSON.parse(data))
-        })
-      })
+      return context.readJsonAsync('articles');
     }
   },
   Article: {
     author: (article, params, context) => {
-      const authorsJson = fs.readFileSync('./graphql/data/authors.json')
-      const authors = JSON.parse(authorsJson)
+      const authors = context.readJson('authors');
 
-      return authors.find(author => author.id === article.author)
+      return authors.find(author => author.id === article.author);
     },
     ratings: (article, params, context) => {
-      const ratingsJson = fs.readFileSync('./graphql/data/ratings.json');
-      const ratings = JSON.parse(ratingsJson)
+      const ratings = context.readJson('ratings');
 
-      return ratings.filter(rating => rating.article === article.id)
+      return ratings.filter(rating => rating.article === article.id);
     }
   }
 }

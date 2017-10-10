@@ -1,6 +1,7 @@
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express'
 import bodyParser from 'body-parser';
 import express from 'express';
+import fs from 'fs';
 import schema from './graphql/schema.js';
 import webpack from 'webpack';
 import webpackConfig from './webpack.config.js';
@@ -26,7 +27,23 @@ app.use(bodyParser.json())
 
 app.use('/graphql', graphqlExpress(req => ({
   schema,
-  context: {},
+  context: {
+    readJson: (entity) => {
+      const json = fs.readFileSync(`./graphql/data/${entity}.json`)
+      return JSON.parse(json)
+    },
+    readJsonAsync: (entity) => {
+      return new Promise((resolve, reject) => {
+        fs.readFile(`./graphql/data/${entity}.json`, (err, data) => {
+          if (err) {
+            reject(err)
+          }
+
+          resolve(JSON.parse(data))
+        })
+      })
+    }
+  },
 })))
 
 app.use('/graphiql', graphiqlExpress({
