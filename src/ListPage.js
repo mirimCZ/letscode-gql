@@ -20,6 +20,7 @@ const articlesQuery = gql`
 
 const ListPage = ({ data: { articles = [] } }) => (
   <div>
+    <h1>Recent Articles</h1>
     {articles.map(article => (
       <div
         key={article.id}
@@ -28,7 +29,7 @@ const ListPage = ({ data: { articles = [] } }) => (
           padding: '.2em 1em',
           marginBottom: '1em'
         }}>
-        <h1>{article.title}</h1>
+        <h2>{article.title}</h2>
         <p>{article.content}</p>
         <p>Author: <strong>{article.author.name} {article.author.surname}</strong></p>
         <p><Link to={`/article/${article.id}`}>Article details</Link></p>

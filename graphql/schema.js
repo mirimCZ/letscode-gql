@@ -25,6 +25,7 @@ const typeDefs = `
 
   type Query {
     articles: [Article]
+    article(id: ID!): Article
   }
 `
 
@@ -32,6 +33,11 @@ const resolvers = {
   Query: {
     articles: (root, params, context) => {
       return context.readJsonAsync('articles');
+    },
+    article: (root, params, context) => {
+      const articles = context.readJson('articles')
+      const article = articles.find(article => article.id === parseInt(params.id, 10))
+      return article
     }
   },
   Article: {
