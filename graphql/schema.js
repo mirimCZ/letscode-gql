@@ -27,6 +27,10 @@ const typeDefs = `
     articles: [Article]
     article(id: ID!): Article
   }
+
+  type Mutation {
+    addRating(articleId: ID!, rating: Int!): Article
+  }
 `
 
 const resolvers = {
@@ -38,6 +42,24 @@ const resolvers = {
       const articles = context.readJson('articles')
       const article = articles.find(article => article.id === parseInt(params.id, 10))
       return article
+    }
+  },
+  Mutation: {
+    addRating: (root, { articleId, rating }, { readJson, writeJson }) => {
+      // TODO: refactor to "updateEntity"
+      const ratings = readJson('ratings');
+      ratings.push({
+        id: ratings.length + 1,
+        article: parseInt(articleId, 10),
+        value: rating,
+      });
+      writeJson('ratings', ratings)
+
+      // TODO: refactor DRY - getArticleById
+      const articles = readJson('articles');
+      const article = articles.find(article => article.id === parseInt(articleId, 10));
+
+      return article;
     }
   },
   Article: {

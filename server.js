@@ -21,8 +21,6 @@ app.use(webpackDevMiddleware(compiler, {
   historyApiFallback: true,
 }));
 
-app.use(express.static(__dirname + '/www'));
-
 app.use(bodyParser.json())
 
 app.use('/graphql', graphqlExpress(req => ({
@@ -31,6 +29,9 @@ app.use('/graphql', graphqlExpress(req => ({
     readJson: (entity) => {
       const json = fs.readFileSync(`./graphql/data/${entity}.json`)
       return JSON.parse(json)
+    },
+    writeJson: (entity, data) => {
+      fs.writeFileSync(`./graphql/data/${entity}.json`, JSON.stringify(data, null, 2))
     },
     readJsonAsync: (entity) => {
       return new Promise((resolve, reject) => {
@@ -50,6 +51,10 @@ app.use('/graphiql', graphiqlExpress({
   endpointURL: '/graphql',
   subscriptionsEndpoint: 'ws://localhost:3000/subs',
 }))
+
+app.get('*', (req, res) => {
+  res.sendFile(__dirname + '/www/index.html')
+})
 
 const server = app.listen(3000, function() {
   const host = server.address().address;

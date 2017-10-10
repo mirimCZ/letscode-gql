@@ -1,7 +1,7 @@
 import React from 'react'
-import { gql, graphql } from 'react-apollo'
+import { gql, graphql, compose } from 'react-apollo'
 
-const query = gql`
+const getArticleQuery = gql`
   query getArticle($id: ID!) {
     article(id: $id) {
       id
@@ -9,13 +9,26 @@ const query = gql`
       content
 
       ratings {
+        id
         value
       }
     }
   }
 `
 
-const DetailPage = ({ title, content, ratings = [] }) => (
+const addRatingMutation = gql`
+  mutation addRating($articleId: ID!, $rating: Int!) {
+    addRating(articleId: $articleId, rating: $rating) {
+      id
+      ratings {
+        id
+        value
+      }
+    }
+  }
+`
+
+const DetailPage = ({ title, content, ratings = [], addRating }) => (
   <div>
     <h1>{title}</h1>
     <p>{content}</p>
@@ -25,7 +38,7 @@ const DetailPage = ({ title, content, ratings = [] }) => (
         <h3>Ratings:</h3>
         <ul>
           {ratings.map(rating => (
-            <li>{rating.value}</li>
+            <li key={rating.id}>{rating.value}</li>
           ))}
           <li>
             avg:&nbsp;
@@ -34,17 +47,34 @@ const DetailPage = ({ title, content, ratings = [] }) => (
         </ul>
       </div>
     }
+    <button onClick={() => addRating(1)}>1</button>
+    <button onClick={() => addRating(2)}>2</button>
+    <button onClick={() => addRating(3)}>3</button>
+    <button onClick={() => addRating(4)}>4</button>
+    <button onClick={() => addRating(5)}>5</button>
   </div>
 )
 
-export default graphql(query, {
-  options: ({ match: { params } }) => ({
-    variables: {
-      id: params.id,
-    },
+export default compose(
+  graphql(getArticleQuery, {
+    options: ({ match: { params } }) => ({
+      variables: {
+        id: params.id,
+      },
+    }),
+    props: ({ data: { article } }) => ({
+      ...article,
+    }),
   }),
-  props: ({ data: { article } }) => ({
-    ...article,
-  }),
-})
+  graphql(addRatingMutation, {
+    props: ({ mutate, ownProps: { match: { params } } }) => ({
+      addRating: (rating) => mutate({
+        variables: {
+          articleId: params.id,
+          rating,
+        },
+      })
+    })
+  })
+)
 (DetailPage)
