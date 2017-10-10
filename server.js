@@ -17,10 +17,10 @@ app.use(webpackDevMiddleware(compiler, {
   historyApiFallback: true,
 }));
 
-app.use(express.static(__dirname + '/www'));
+app.get('*', (req, res) => {
+  res.sendFile(__dirname + '/www/index.html')
+})
 
 const server = app.listen(3000, function() {
-  const host = server.address().address;
-  const port = server.address().port;
-  console.log('Example app listening at http://%s:%s', host, port);
+  console.log('Example app listening at http://localhost:3000');
 });
